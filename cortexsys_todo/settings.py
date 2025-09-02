@@ -19,18 +19,20 @@ INSTALLED_APPS = [
     # Third-party
     "rest_framework",
     "rest_framework_simplejwt",
-
+    "django_filters",
+    "drf_spectacular",
     # "rest_framework.authtoken",
-    # "corsheaders",
+    "corsheaders",
 
     # Local apps
     "accounts",
-    # "tasks",
+    "tasks",
 ]
 
 MIDDLEWARE = [
-    # "corsheaders.middleware.CorsMiddleware",  # باید بالا باشد
+    "corsheaders.middleware.CorsMiddleware",  # باید بالا باشد
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -54,23 +56,18 @@ TEMPLATES = [{
 WSGI_APPLICATION = "cortexsys_todo.wsgi.application"
 
 
+
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("POSTGRES_DB", "cortexsys"),
+        "USER": os.getenv("POSTGRES_USER", "postgres"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD", "postgres"),
+        "HOST": os.getenv("POSTGRES_HOST", "db"),  # اسم سرویس Docker
+        "PORT": os.getenv("POSTGRES_PORT", "5432"),
     }
 }
-# اگر همین الآن Postgres می‌خواهی، این را جایگزین کن و env ست کن:
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": os.getenv("DB_NAME", "cortexsys"),
-#         "USER": os.getenv("DB_USER", "postgres"),
-#         "PASSWORD": os.getenv("DB_PASSWORD", "postgres"),
-#         "HOST": os.getenv("DB_HOST", "127.0.0.1"),
-#         "PORT": os.getenv("DB_PORT", "5432"),
-#     }
-# }
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
@@ -101,7 +98,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
     ),
-    #  "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 SIMPLE_JWT = {
@@ -109,5 +106,28 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
 
+
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "CortexSys TODO API",
+    "DESCRIPTION": "A lightweight task management API built with Django REST Framework.",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
+    "SCHEMA_PATH_PREFIX": "/api",
+}
+
 # # CORS برای توسعه
 # CORS_ALLOW_ALL_ORIGINS = True
+
+STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"   
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+
+
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:3000",
+    "http://localhost:3000",
+]
+CORS_ALLOW_CREDENTIALS = True
